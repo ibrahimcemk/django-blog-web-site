@@ -1,0 +1,495 @@
+1) ilk olarak windows + r tuşuna basıp cmd'yi açarak, cd Desktop ile masaüstüne giriş sağlarız. Sonrasında "mkdir djangogirls" ile masaüstüne "djangogirls" klasörünü oluşturup "cd djangogirls" ile klasör içine giriş sağlarız.
+
+2) "python -m venv myvenv" komudunu yazarız ve djangogirls'ün içine sanal makine oluştururuz. Ve "myvenv\Scripts\activate" koduyla beraber sanal ortamımızı çalıştırırız.
+
+3) "python -m pip install --upgrade pip","pip install django" komutlarıyla birlikte django kurulmularını sağlarız.
+
+4) "django-admin.exe startproject mysite ." kodunu yazarak mysite adında yeni django projesini oluşturmuş oluruz.
+
+5) mysite/settings.py içinden "TIME_ZONE VE LANGUAGE_CODE"LARI (TIME_ZONE = 'Europe/Istanbul' , LANGUAGE_CODE = 'tr-TR') olarak ayarlayıp Türkiye saat biçimine göre ayarlarız ve Ek olarak STATIC_URL = 'static/' "nin altına STATIC_ROOT = BASE_DIR / 'static' i ekleriz, sonrasında ise ALLOWED_HOSTS kısımını ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.pythonanywhere.com'] şekilinde ayarlarız.
+
+6)manage.py makemigrations blog bu komut ile birlikte veritabanına eklemiş oluruz.
+
+
+7) Dosyaların veritabanı'nı oluşturmak için manage.py migrate komudunu yazarız ve python manage.py runserver komudunu yazarak ilk projemizi başlatmış oluruz. (sunucuyu kaptmak için ctrl+c tuşuna basmamız yeterlidir.
+
+8) python manage.py startapp blog komudunu yazarak ana klasörümüzün içine blog klasörünü oluşturmuş oluruz.
+
+9) mysite/settings.py'nin içinde INSTALLED_APPS'ın en altına 'blog', şeklinde en altına yazıp entegre ederiz.
+
+10) blog/models.py'in içine:
+
+from django.conf import settings
+from django.db import models
+from django.utils import timezone
+
+
+class Post(models.Model):
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    text = models.TextField()
+    created_date = models.DateTimeField(
+            default=timezone.now)
+    published_date = models.DateTimeField(
+            blank=True, null=True)
+
+    def publish(self):
+        self.published_date = timezone.now()
+        self.save()
+
+    def __str__(self):
+        return self.title
+
+komutlarını tanımlarız. ve python manage.py makemigrations blog 'komuduyla beraber blog'un veritabanı'nı  tanımlamış oluruz.
+
+11) blog/admin.py kısımına
+
+from django.contrib import admin
+from .models import Post
+
+admin.site.register(Post)
+
+komutlarını tanımlarız ve python manage.py runserver komuduyla birlikte projemizi başlatırız ve  http://127.0.0.1:8000/admin/ kısımıyla birlikte admin paneline giriş sağlarız.
+
+12) python manage.py createsuperuser koduyla birlikte yönetici hesabı oluştururuz, hesap girdileri şu şekildedir:
+
+username: admin
+mail adress: a@gmail.com
+password:12345678
+
+13) mysite/urls.py kısımını inceleyerek
+
+"""mysite URL Configuration
+
+[...]
+"""
+from django.contrib import admin
+from django.urls import path
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+]
+
+komutlarını yazıyoruz
+
+ve sonrasında
+
+mysite/urls.py kısımına ise
+
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('blog.urls')),
+]
+
+bu komutları yazıyoruz.
+
+14) blog klasörünün içine urls.py adında dosya oluşturup içine
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.post_list, name='post_list'),
+]
+
+kodlarını yerleştiriyoruz.
+
+Bu aşamada hata almamız gayet normaldir çünkü daha post_list.html dosyamızı hem oluşturmadık hem de tanımlamadık.
+
+blog/views.py kısımına ise
+
+from django.shortcuts import render
+
+# Create your views here.
+
+def post_list(request):
+    return render(request, 'blog/post_list.html', {})
+
+kodunu tanımlıyoruz.
+
+15) blog dosyamızın içine templates klasörü ve onun içine ise tekrardan blog klasörü oluşturuyoruz. En son oluşturduğumuz blog klasörünün içine (templates'in içindeki blog klasörü) post_list.html adında yeni html uzantılı sayfamızı ekliyoruz.
+
+"komut yöneticisindeki hata gittiyse ve boş html viewport'unu görüyorsak hata çözülmüş olup sayfamızı görmüş oluruz.
+
+16) post_list.html'mizin içine
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Django Girls blog</title>
+    </head>
+    <body>
+        <header>
+            <h1><a href="/">Django Girls Blog</a></h1>
+        </header>
+
+        <article>
+            <time>published: 14.06.2014, 12:14</time>
+            <h2><a href="">My first post</a></h2>
+            <p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+        </article>
+
+        <article>
+            <time>published: 14.06.2014, 12:14</time>
+            <h2><a href="">My second post</a></h2>
+            <p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut f.</p>
+        </article>
+    </body>
+</html>
+
+bu kodları yerleştirelim ve çalışıp çalışmadığını kontrol edelim.
+
+17) python manage.py shell komudunu çalıştırdığımız komut istemine yazıyoruz ve interaktif konsolumuzu çalıştırmış oluyoruz ve
+
+Post.objects.all() 
+
+komudunu deniyoruz ve bize 
+
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+NameError: name 'Post' is not defined
+>>> Post.objects.all()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+NameError: name 'Post' is not defined 
+
+böyle bir çıktı verdiğini ve bize bir post olmadığını söylüyor çünkü içe aktarım yapmadık.
+
+18) from blog.models import Post bu komut ile "interaktif konsolumuzdayken yazıyoruz" ve içe aktarıyoruz. Post.objects.all() bu komut ile yaptığımız postları görmüş oluyoruz.
+
+19) from django.contrib.auth.models import User komuduyla birlikte user'imizi import etmiş oluyoruz. Ve User.objects.all() komudunu yazdıktan sonra hangi kullanıcının aktif olarak gözüktüğünü görmüş oluruz. 
+
+20) me = User.objects.get(username='admin') yazarız ve kendi user'imizi ve username'mizi tanımlamış oluruz.
+ 
+21) Post.objects.create(author=me, title='Sample title', text='Test') komuduyla birlikte bir tane test postu oluştururuz. Post.objects.all() 'bu komutla birlikte oluşturduğumuz post/postları görmüş oluruz.
+
+Post.objects.filter(author=me) bu komudu yazarsak oluşturduğumuz postları parantaze aldığımız içerikle alakalı filtrelemiş oluruz, Post.objects.filter(title__contains='title') 'bu kodla işe içinde title geçen postları filtrelemiş oluruz.
+
+22) Yayınlanan tüm gönderilerin tarihinin listesini alabiliriz ve bunu önceden yaptığımız published_date 'ki gönderileri filtreleyerek yaparız. Bunun için from django.utils import timezone 'bu kodla birlikte içeri aktarım sağlarız. Ve sonrasında Post.objects.filter(published_date__lte=timezone.now()) bu komudu yazarak tanımlamış oluruz.
+
+23) post = Post.objects.get(title="Sample title") , post.publish() komutları yazarız ve Post.objects.filter(published_date__lte=timezone.now()) 'komut ile birlikte yazdığımız postları listeleriz ve ek olarak Post.objects.order_by('created_date') bu kodla oluşturma tarihini öğrenmiş oluruz. Ve ek olarak Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date') 'bu kodla birlikte zincirleyerek listeleme yapabiliriz.
+
+exit() yazarak interaktif konsolumuzdan çıkış sağlarız.
+
+24) Şu an ise amacımız şablon/şablonlardaki dinamik verileri ayarlamak olacaktır.
+
+blog/views.py kısımının içi şu anlık 
+
+from django.shortcuts import render
+from django.utils import timezone
+from .models import Post
+
+def post_list(request):
+    posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
+    return render(request, 'blog/post_list.html', {'posts': posts})
+
+bu kod satırlarıyla gözükmelidir.
+
+25) blog klasörünün içine bir tane static klasörü oluşturuyoruz ve içine css adında bir klasör oluşturup onun içine ise blog.css adında bir css dosyası oluşturuyoruz ve css dosyasının içine örnek olması amacıyla 
+
+h1 a, h2 a {
+    color: #C25100;
+}
+
+kodlarını yazıyoruz ve problem çıkmamış ise devam ediyoruz.
+
+blog klasörümüzün içindeki templates klasörüne girip onun içindeki blog klasörüne tekrardan giriyoruz ve post_list.html klasörüne tekrardam giriyoruz ve içindeki kodların son şeklini 
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Django Girls blog</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+    </head>
+    <body>
+        <header>
+            <h1><a href="/">Django Girls Blog</a></h1>
+        </header>
+
+        {% for post in posts %}
+            <article>
+                <time>published: {{ post.published_date }}</time>
+                <h2><a href="">{{ post.title }}</a></h2>
+                <p>{{ post.text|linebreaksbr }}</p>
+            </article>
+        {% endfor %}
+    </body>
+</html>
+
+olarak ayarlıyoruz.
+
+ve css kısımına 
+
+body {
+    padding-left: 15px;
+}
+
+h1 a, h2 a {
+    color: #C25100;
+    font-family: 'Lobster';
+}
+
+-bu komutları yazıyoruz. Yazılar normal gözükebilir lakin bende yazıların altında çizgi çıktığı için text-decoration: none; 'yapmış bulunuyorum.
+
+şu anlık blog klasörümüzün içindeki static klasörüne giriş sağlıyoruz ve içindeki css klasörüne girince blog.css klasörüyle karşılaşıyoruz ve css dosyamızın şuanlık görünümü
+
+h1 a, h2 a {
+    color: #C25100;
+    font-family: 'Lobster';
+    text-decoration: none;
+}
+
+body {
+    padding-left: 15px;
+}
+
+şeklinde olmalıdır. ve css Kısımına
+
+
+h1 a, h2 a {
+    color: #C25100;
+    font-family: 'Lobster';
+    text-decoration: none;
+}
+
+body {
+    padding-left: 15px;
+}
+
+.page-header {
+    background-color: #C25100;
+    margin-top: 0;
+    margin-bottom: 40px;
+    padding: 20px 20px 20px 40px;
+}
+
+.page-header h1,
+.page-header h1 a,
+.page-header h1 a:visited,
+.page-header h1 a:active {
+    color: #ffffff;
+    font-size: 36pt;
+    text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-family: 'Lobster', cursive;
+}
+
+.date {
+    color: #828282;
+}
+
+.save {
+    float: right;
+}
+
+.post-form textarea,
+.post-form input {
+    width: 100%;
+}
+
+.top-menu,
+.top-menu:hover,
+.top-menu:visited {
+    color: #ffffff;
+    float: right;
+    font-size: 26pt;
+    margin-right: 20px;
+}
+
+.post {
+    margin-bottom: 70px;
+}
+
+.post h2 a,
+.post h2 a:visited {
+    color: #000000;
+}
+
+.post > .date,
+.post > .actions {
+    float: right;
+}
+
+.btn-secondary,
+.btn-secondary:visited {
+    color: #C25100;
+    background: none;
+    border-color: #C25100;
+}
+
+.btn-secondary:hover {
+    color: #FFFFFF;
+    background-color: #C25100;
+}
+
+komutlarını yazıyoruz.
+
+
+26) blog/şablonlar/blog/gönderi_listesi.html kısımını ayarlıyoruz ve şu anlık görünümü
+
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <header>
+        <title>Django Girls blog</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+    </head>
+    <body>
+        <header class="page-header">
+            <div class="container">
+                <h1><a href="/">Django Girls Blog</a></h1>
+            </div>
+        </header>
+
+        {% for post in posts %}
+        <article class="post">
+            <time>published: {{ post.published_date }}</time>
+            <h2><a href="">{{ post.title }}</a></h2>
+            <p>{{ post.text|linebreaksbr }}</p>
+        </article>
+        {% endfor %}
+    </body>
+</html>
+
+şeklinde olmalıdır.
+
+26) templates'in içindeki blog klasörünün içine post_list.html haricinde ek olarak base.html adında bir html dosyası oluşturup içine 
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Django Girls blog</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext">
+        <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+    </head>
+    <body>
+        <header class="page-header">
+          <div class="container">
+              <h1><a href="/">Django Girls Blog</a></h1>
+          </div>
+        </header>
+
+        <main class="container">
+            <div class="row">
+                <div class="col">
+                {% for post in posts %}
+                    <article class="post">
+                        <time class="date">
+                            {{ post.published_date }}
+                        </time>
+                        <h2><a href="">{{ post.title }}</a></h2>
+                        <p>{{ post.text|linebreaksbr }}</p>
+                    </article>
+                {% endfor %}
+                </div>
+            </div>
+        </main>
+    </body>
+</html>
+
+bu girdileri yazıyoruz.
+
+son olarak post_list.html kısımımızdaki kodlar
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <header>
+        <title>Django Girls blog</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+    </head>
+    <body>
+        <header class="page-header">
+            <div class="container">
+                <h1><a href="/">Django Girls Blog</a></h1>
+            </div>
+        </header>
+
+        {% for post in posts %}
+        <article class="post">
+            <time>published: {{ post.published_date }}</time>
+            <h2><a href="">{{ post.title }}</a></h2>
+            <p>{{ post.text|linebreaksbr }}</p>
+        </article>
+        {% endfor %}
+
+
+
+        <main class="container">
+    <div class="row">
+        <div class="col">
+            {% for post in posts %}
+                <article class="post">
+                    <time class="date">
+                        {{ post.published_date }}
+                    </time>
+                    <h2><a href="">{{ post.title }}</a></h2>
+                    <p>{{ post.text|linebreaksbr }}</p>
+                </article>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+    </body>
+</html> 
+
+ve base.html kısımındaki kodlar
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Django Girls blog</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext">
+        <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+    </head>
+    <body>
+        <header class="page-header">
+          <div class="container">
+            <body>
+                <header class="page-header">
+                  <div class="container">
+                      <h1><a href="/">Django Girls Blog</a></h1>
+                  </div>
+                </header>
+                <main class="container">
+                    <div class="row">
+                        <div class="col">
+                        {% block content %}
+                        {% endblock %}
+                        </div>
+                    </div>
+                </main>
+            </body>
+</html>
+
+bu şekilde olacaktır lakin tam olarak veritabanı'nı tanımlayamamış bulunuyorum.
+
+
+
+
+
+
+
+
+
+
+

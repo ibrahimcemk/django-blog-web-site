@@ -1,0 +1,115 @@
+/* blog/static/blog.css */
+
+/* Genel Sayfa Stili */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+}
+
+/* Sayfa Başlığı (Header) */
+.page-header {
+    background-color: #ff9400;
+    margin-top: 0;
+    padding: 20px 40px;
+    display: flex; /* Flexbox düzeni */
+    justify-content: space-between; /* Başlık ve butonları kenarlara iter */
+    align-items: center; /* Dikeyde ortalar */
+    text-decoration: none; 
+}
+
+/* Başlık Stili */
+.page-header h1 {
+    margin: 0;
+    font-size: 36px;
+    color: rgb(255, 255, 255);
+}
+
+.page-header h1 a {
+    color: #ffffff;
+    text-decoration: none;
+    font-family: 'Lobster', cursive;
+}
+
+/* Kullanıcı İşlemleri (Giriş ve Çıkış Butonları) */
+.user-actions {
+    display: flex;
+    gap: 10px; /* Butonlar arasında boşluk oluşturur */
+}
+
+.user-actions a {
+    text-decoration: none;
+}
+
+.user-actions .btn {
+    font-size: 14px;
+    padding: 8px 15px;
+}
+
+/* Post Listesi ve Buton Stilleri */
+.post-list .post {
+    margin-bottom: 70px;
+}
+
+.post-list h1 a {
+    color: #FCA205;
+    font-family: 'Lobster', cursive;
+    text-decoration: none; 
+}
+
+.post-list h1 a:hover {
+    text-decoration: none; 
+}
+
+.post-image {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    margin-top: 20px;
+    border-radius: 8px;
+}
+
+/* Buton Stil Ayarları */
+.btn {
+    text-align: center;
+    border-radius: 5px;
+    
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: rgb(255, 255, 255);
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: rgb(255, 255, 255);
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: rgb(255, 255, 255);
+}
+
+.content {
+    margin-left: 40px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+}
+
+/* Post Form Stil Ayarları */
+.post-form textarea,
+.post-form input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ffffff;
+    
+}
+

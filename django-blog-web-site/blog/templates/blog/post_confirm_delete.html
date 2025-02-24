@@ -1,0 +1,14 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+    <div class="post-delete-confirm">
+        <h2>Bu postu silmek istediğinizden emin misiniz?</h2>
+        <p><strong>{{ post.title }}</strong></p>
+
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Evet, sil</button>
+            <a href="{% url 'post_detail' pk=post.pk %}" class="btn btn-default">Hayır, iptal et</a>
+        </form>
+    </div>
+{% endblock %}

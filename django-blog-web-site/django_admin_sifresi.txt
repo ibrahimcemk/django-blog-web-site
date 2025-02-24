@@ -1,0 +1,3 @@
+kullaniciadi:admin
+mail:a@gmail.com		
+şifre:12345678
